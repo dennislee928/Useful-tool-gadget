@@ -1,20 +1,22 @@
 @echo off
 :: create_maintenance_tasks.bat
-:: 依需求修改 SCRIPT_PATH 與排程時間
+:: Adjust SCRIPT_PATH and schedule time as needed
 
-set SCRIPT_PATH=D:\scripts\maintenance.bat
+set SCRIPT_PATH=%~dp0maintenance.bat
 
 if not exist "%SCRIPT_PATH%" (
-  echo [ERROR] 找不到 maintenance.bat: %SCRIPT_PATH%
-  echo 請先確認路徑再執行本腳本。
+  echo [ERROR] maintenance.bat not found: %SCRIPT_PATH%
+  echo Please verify the path before running this script.
   goto :EOF
 )
 
-echo [INFO] 建立「每週 C/D 維護」排程工作...
+echo [INFO] Creating weekly C/D maintenance scheduled task...
 
+:: Default to run with /quiet /deep; modify SCHEDULE_ARGS to change behavior or include /move
+set SCHEDULE_ARGS=/quiet /deep
 schtasks /Create ^
   /TN "Local_C_D_Maintenance" ^
-  /TR "\"%SCRIPT_PATH%\"" ^
+  /TR "\"%SCRIPT_PATH%\" %SCHEDULE_ARGS%" ^
   /SC WEEKLY ^
   /D SUN ^
   /ST 03:00 ^
@@ -22,10 +24,10 @@ schtasks /Create ^
   /F
 
 if errorlevel 1 (
-  echo [ERROR] 建立排程失敗，請到 工作排程程式(Task Scheduler) 檢查。
+  echo [ERROR] Failed to create scheduled task. Please check Task Scheduler.
 ) else (
-  echo [DONE] 已建立排程工作 Local_C_D_Maintenance 。
-  echo        可以在「工作排程程式」裡修改時間或停用。
+  echo [DONE] Scheduled task Local_C_D_Maintenance created.
+  echo        You can adjust the time or disable it in Task Scheduler.
 )
 
 pause
